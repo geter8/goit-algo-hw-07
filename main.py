@@ -2,6 +2,19 @@ from datetime import datetime, timedelta
 from collections import UserDict
 
 
+def input_error(func):
+    def wrapper(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except KeyError:
+            return "Contact not found."
+        except ValueError as e:
+            return str(e)
+        except IndexError:
+            return "Invalid command format."
+    return wrapper
+
+
 class Field:
     def __init__(self, value):
         self.value = value
@@ -81,44 +94,23 @@ class AddressBook(UserDict):
     def get_upcoming_birthdays(self):
         today = datetime.today().date()
         upcoming = []
-
         for record in self.data.values():
             if not record.birthday:
                 continue
-
             b_date = datetime.strptime(record.birthday.value, "%d.%m.%Y").date()
             this_year_bday = b_date.replace(year=today.year)
-
             if this_year_bday < today:
                 this_year_bday = this_year_bday.replace(year=today.year + 1)
-
             days_to_bday = (this_year_bday - today).days
-
             if 0 <= days_to_bday <= 7:
                 if this_year_bday.weekday() >= 5:
-                    days_to_monday = 7 - this_year_bday.weekday()
+                    days_to_monday = (7 - this_year_bday.weekday()) % 7
                     this_year_bday += timedelta(days=days_to_monday)
-
                 upcoming.append({
                     "name": record.name.value,
                     "congratulation_date": this_year_bday.strftime("%d.%m.%Y")
                 })
-
         return upcoming
-
-
-def input_error(func):
-    def wrapper(*args, **kwargs):
-        try:
-            return func(*args, **kwargs)
-        except KeyError:
-            return "Contact not found."
-        except ValueError as e:
-            return str(e)
-        except IndexError:
-            return "Invalid command format."
-
-    return wrapper
 
 
 @input_error
@@ -186,12 +178,13 @@ def birthdays(args, book):
     )
 
 
+@input_error
 def parse_input(user_input):
-    user_input = user_input.strip().lower()
+    user_input = user_input.strip()
     if not user_input:
-        return "", []
+        raise ValueError("Empty input. Please enter a command.")
     parts = user_input.split()
-    return parts[0], parts[1:]
+    return parts[0].lower(), parts[1:]
 
 
 def main():
@@ -200,35 +193,25 @@ def main():
     while True:
         user_input = input("Enter a command: ")
         command, args = parse_input(user_input)
-
         if command in ["close", "exit"]:
             print("Good bye!")
             break
-
         elif command == "hello":
             print("How can I help you?")
-
         elif command == "add":
             print(add_contact(args, book))
-
         elif command == "change":
             print(change_contact(args, book))
-
         elif command == "phone":
             print(show_phone(args, book))
-
         elif command == "all":
             print(show_all(book))
-
         elif command == "add-birthday":
             print(add_birthday(args, book))
-
         elif command == "show-birthday":
             print(show_birthday(args, book))
-
         elif command == "birthdays":
             print(birthdays(args, book))
-
         else:
             print("Invalid command.")
 
