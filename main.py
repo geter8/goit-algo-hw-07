@@ -182,7 +182,7 @@ def birthdays(args, book):
 def parse_input(user_input):
     user_input = user_input.strip()
     if not user_input:
-        raise ValueError("Empty input. Please enter a command.")
+        return "", []
     parts = user_input.split()
     return parts[0].lower(), parts[1:]
 
@@ -191,7 +191,9 @@ def main():
     book = AddressBook()
     print("Welcome to the assistant bot!")
     while True:
-        user_input = input("Enter a command: ")
+        user_input = input("Enter a command: ").strip()
+        if not user_input:  # Перевірка перед обробкою
+            continue
         command, args = parse_input(user_input)
         if command in ["close", "exit"]:
             print("Good bye!")
