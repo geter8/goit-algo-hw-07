@@ -57,7 +57,7 @@ class Record:
 
     def edit_phone(self, old_phone, new_phone):
         if not new_phone.isdigit() or len(new_phone) != 10:
-            raise ValueError("Phone number must be 10 digits.")
+            raise ValueError("Phone number must be 10 digits..")
         for p in self.phones:
             if p.value == old_phone:
                 p.value = new_phone
