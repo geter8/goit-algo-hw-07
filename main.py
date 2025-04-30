@@ -62,7 +62,7 @@ class Record:
             if p.value == old_phone:
                 p.value = new_phone
                 return
-        raise ValueError("Phone number not found")
+        raise ValueError("Phone number notfound")
 
     def find_phone(self, phone):
         for p in self.phones:
